@@ -620,6 +620,7 @@ int main ( void )
                     "Summary of tests: asmFixSign: %ld of %ld tests passed; %ld pts\r\n"
                     "Summary of tests: asmMain:    %ld of %ld tests passed; %ld pts\r\n"
                     " Total point score: %ld\r\n"
+                    "FINI!!!!!\r\n"
                     "\r\n",
                     (char *) nameStrPtr, idleCount, 
                     unpackTotalPassCount, unpackTotalTests, unpackPts,
@@ -634,7 +635,8 @@ int main ( void )
             {
                 snprintf((char*)uartTxBuffer, MAX_PRINT_LEN,
                     "========= %s: PARTIAL tests complete, make sure to rerun with all tests enabled!!!\r\n"
-                    "Post-test Idle Cycle Number: %ld\r\n",
+                    "Post-test Idle Cycle Number: %ld\r\n"
+                    "FINI!!!!!\r\n",
                     (char *) nameStrPtr, idleCount);
             }
 
