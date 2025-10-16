@@ -85,7 +85,7 @@ static uint8_t uartTxBuffer[MAX_PRINT_LEN] = {0};
 static int32_t tc[] = {
     0x00020003,
     0xFFFC0003,  // -,+
-    0,  // 0,0
+    0,           // 0,0
     0x00000005,  // 0,+
     0x0000FFFC,  // 0,-
     0xFFFD0000,  // -,0
@@ -482,6 +482,9 @@ int main ( void )
                 
                 passCount = 0;
                 failCount = 0;
+                
+                resetGlobalVars();
+                
                 // Get the packed value for this test case 
                 int32_t packedValue = tc[testCase];  // multiplicand and multiplier
                 calcExpectedValues(testCase,"",packedValue,&exp);
@@ -634,14 +637,19 @@ int main ( void )
         // uint32_t totalTests = totalPassCount + totalFailCount;
         bool firstTime = true;
         // Total points should be 50 to match the lab question
-        uint32_t numPtsPerFunc = 10; 
+        // uint32_t numPtsPerFunc = 10; 
         uint32_t unpackPts, absPts, multPts, fsPts, mainPts, totalPts;
-        uint32_t totalPtsPossible = 5 * 10;
-        unpackPts = numPtsPerFunc*unpackTotalPassCount/unpackTotalTests;
-        absPts = numPtsPerFunc*absTotalPassCount/absTotalTests;
-        multPts = numPtsPerFunc*multTotalPassCount/multTotalTests;
-        fsPts = numPtsPerFunc*fsTotalPassCount/fsTotalTests;
-        mainPts = numPtsPerFunc*mainTotalPassCount/mainTotalTests;
+        uint32_t unpackWt = 12; // point weighting for unpack tests
+        uint32_t absWt    = 12; // point weighting for unpack tests
+        uint32_t multWt   = 7; // point weighting for unpack tests
+        uint32_t fsWt     = 7; // point weighting for unpack tests
+        uint32_t mainWt   = 12; // point weighting for unpack tests
+        uint32_t totalPtsPossible = unpackWt+absWt+multWt+fsWt+mainWt;
+        unpackPts = unpackWt*unpackTotalPassCount/unpackTotalTests;
+        absPts = absWt*absTotalPassCount/absTotalTests;
+        multPts = multWt*multTotalPassCount/multTotalTests;
+        fsPts = fsWt*fsTotalPassCount/fsTotalTests;
+        mainPts = mainWt*mainTotalPassCount/mainTotalTests;
         totalPts = unpackPts + absPts + multPts + fsPts + mainPts;
         
         while(true)      // post-test forever loop
