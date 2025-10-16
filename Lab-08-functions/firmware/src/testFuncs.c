@@ -29,6 +29,7 @@
 #include <malloc.h>
 #include <inttypes.h>   // required to print out pointers using PRIXPTR macro
 #include "definitions.h"                // SYS function prototypes
+#include "asmExterns.h" 
 #include "testFuncs.h" // lab test structs
 #include "printFuncs.h"  // lab print funcs
 
@@ -210,6 +211,23 @@ int32_t calcExpectedValues(
     return 0;
 }
 
+
+
+
+
+void resetGlobalVars()
+{
+    a_Multiplicand = 0x42424242;
+    b_Multiplier = 0x42424242;
+    rng_Error = 0x42424242;
+    a_Sign = 0x42424242;
+    b_Sign = 0x42424242;
+    prod_Is_Neg = 0x42424242;
+    a_Abs = 0x42424242;
+    b_Abs = 0x42424242;
+    init_Product = 0x42424242;
+    final_Product = 0x42424242; 
+}
 
 /** 
   @Function

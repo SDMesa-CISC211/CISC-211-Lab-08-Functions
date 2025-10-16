@@ -174,6 +174,7 @@ int32_t calcExpectedValues(
         uint32_t packedValue, // test case input
         expectedValues *e);   // ptr to struct where values will be stored
 
+void resetGlobalVars();
 
 void testAsmUnpack(
         int32_t testNum, // test number

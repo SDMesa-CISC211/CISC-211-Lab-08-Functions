@@ -79,8 +79,9 @@ static uint8_t uartTxBuffer[MAX_PRINT_LEN] = {0};
 
 
 
-// the following array defines pairs of {balance, transaction} values
-// tc stands for test case
+// the following array contains two 16b values packed into a 32b word.
+// Each line represents a single test case.
+// "tc" stands for test case
 static int32_t tc[] = {
     0x00020003,
     0xFFFC0003,  // -,+
@@ -217,8 +218,8 @@ int main ( void )
                 int32_t packedValue = tc[testCase];  // multiplicand and multiplier
                 calcExpectedValues(testCase,"",packedValue,&exp);
                 
-                int32_t unpackedA = 0;
-                int32_t unpackedB = 0;
+                int32_t unpackedA = 0x42424242;
+                int32_t unpackedB = 0x42424242;
                 
                 // !!!! THIS IS WHERE YOUR ASSEMBLY LANGUAGE PROGRAM GETS CALLED!!!!
                 // Call our assembly function defined in file asmMult.s
@@ -295,10 +296,10 @@ int main ( void )
                 int32_t packedValue = tc[testCase];  // multiplicand and multiplier
                 calcExpectedValues(testCase,"",packedValue,&exp);
                 
-                int32_t absA = 0;
-                int32_t absB = 0;
-                int32_t signBitA = 0;
-                int32_t signBitB = 0;
+                int32_t absA = 0x42424242;
+                int32_t absB = 0x42424242;
+                int32_t signBitA = 0x42424242;
+                int32_t signBitB = 0x42424242;
                 
                 // test the absolute value of A
                 GET_REG(sp, sp1Ptr); // get SP value before the call
@@ -326,6 +327,11 @@ int main ( void )
 
                 passCount = 0;
                 failCount = 0;
+                
+                absA = 0x42424242;
+                absB = 0x42424242;
+                signBitA = 0x42424242;
+                signBitB = 0x42424242;
                 
                 // test the absolute value of B
                 GET_REG(sp, sp1Ptr); // get SP value before the call
@@ -556,6 +562,8 @@ int main ( void )
                 isUSARTTxComplete = false;
                 passCount = 0;
                 failCount = 0;
+
+                resetGlobalVars();
 
                 // Get the packed value for this test case 
                 int32_t packedValue = tc[testCase];  // multiplicand and multiplier
