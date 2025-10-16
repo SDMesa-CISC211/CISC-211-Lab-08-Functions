@@ -44,6 +44,11 @@
 #include "testFuncs.h" // lab test structs
 #include "printFuncs.h"  // lab print funcs
 
+// asm function to get the SP value. Ensures tested code didn't
+// corrupt the SP. Does NOT ensure that the code actually pushed
+// on entry and popped on exit. Need to look at code to ensure that.
+#define GET_REG(XX,YY) asm volatile("mov %0," #XX : "=r"(*YY))
+
 // Define the global that gives access to the student's name
 extern uint32_t nameStrPtr;
 
@@ -57,6 +62,7 @@ bool doAsmMainTest = true;
 bool onlyPrintFails = true; // set this to false to see passing test cases, too
 
 /* RTC Time period match values for input clock of 1 KHz */
+#define PERIOD_1MS                              1
 #define PERIOD_10MS                             10
 #define PERIOD_100MS                            102
 #define PERIOD_500MS                            512
@@ -163,7 +169,7 @@ int main ( void )
     SYS_Initialize ( NULL );
     DMAC_ChannelCallbackRegister(DMAC_CHANNEL_0, usartDmaChannelHandler, 0);
     RTC_Timer32CallbackRegister(rtcEventHandler, 0);
-    RTC_Timer32Compare0Set(PERIOD_10MS);
+    RTC_Timer32Compare0Set(PERIOD_1MS);
     RTC_Timer32CounterSet(0);
     RTC_Timer32Start();
 #else // using the simulator
@@ -179,6 +185,9 @@ int main ( void )
     // int32_t x1 = sizeof(tc);
     // int32_t x2 = sizeof(tc[0]);
     uint32_t numTestCases = sizeof(tc)/sizeof(tc[0]);
+    uint32_t sp1, sp2; // variables to hold the SP values before and after func calls
+    uint32_t *sp1Ptr = &sp1;
+    uint32_t *sp2Ptr = &sp2;
     
     static expectedValues exp;
 
@@ -214,7 +223,9 @@ int main ( void )
                 // !!!! THIS IS WHERE YOUR ASSEMBLY LANGUAGE PROGRAM GETS CALLED!!!!
                 // Call our assembly function defined in file asmMult.s
                 // Send in the test case value, see if the results are correct
+                GET_REG(sp, sp1Ptr); // get SP value before the call
                 asmUnpack(exp.packedVal, &unpackedA, &unpackedB);
+                GET_REG(sp, sp2Ptr); // get SP value after the call
                 
                 testAsmUnpack(testCase,
                         "",
@@ -223,6 +234,8 @@ int main ( void )
                         &unpackedB,
                         exp.inputA,    // expected values
                         exp.inputB,
+                        sp1,
+                        sp2,
                         &passCount,
                         &failCount,
                         onlyPrintFails,
@@ -288,7 +301,9 @@ int main ( void )
                 int32_t signBitB = 0;
                 
                 // test the absolute value of A
+                GET_REG(sp, sp1Ptr); // get SP value before the call
                 int32_t r0_absValA = asmAbs(exp.inputA, &absA, &signBitA);
+                GET_REG(sp, sp2Ptr); // get SP value before the call
 
                 testAsmAbs(testCase,
                         "",
@@ -298,6 +313,8 @@ int main ( void )
                         r0_absValA,   // outputs
                         exp.absA,  // expected values
                         exp.signA,
+                        sp1,
+                        sp2,
                         &passCount,
                         &failCount,
                         onlyPrintFails,
@@ -311,7 +328,9 @@ int main ( void )
                 failCount = 0;
                 
                 // test the absolute value of B
+                GET_REG(sp, sp1Ptr); // get SP value before the call
                 int32_t r0_absValB = asmAbs(exp.inputB, &absB, &signBitB);
+                GET_REG(sp, sp2Ptr); // get SP value before the call
 
                 testAsmAbs(testCase,
                         "",
@@ -321,6 +340,8 @@ int main ( void )
                         r0_absValB,   // outputs
                         exp.absB,  // expected values
                         exp.signB,
+                        sp1,
+                        sp2,
                         &passCount,
                         &failCount,
                         onlyPrintFails,
@@ -386,7 +407,9 @@ int main ( void )
                 // !!!! THIS IS WHERE YOUR ASSEMBLY LANGUAGE PROGRAM GETS CALLED!!!!
                 // Call our assembly function defined in file asmMult.s
                 // initConservedRegs(conservedRegInitValues);            // set the input values 
+                GET_REG(sp, sp1Ptr); // get SP value before the call
                 int32_t r0_initProd = asmMult(exp.absA, exp.absB);
+                GET_REG(sp, sp2Ptr); // get SP value before the call
 
                 testAsmMult(testCase,
                         "",
@@ -394,6 +417,8 @@ int main ( void )
                         exp.absB,
                         r0_initProd, // outputs
                         exp.initProduct, // expected values
+                        sp1,
+                        sp2,
                         &passCount,
                         &failCount,
                         onlyPrintFails,
@@ -459,9 +484,11 @@ int main ( void )
                 /* return corrected product based on signs of two original input values */
                 // provide the correct value as inputs,
                 // see if the sign is adjusted correctly
+                GET_REG(sp, sp1Ptr); // get SP value before the call
                 int32_t r0_finalProduct = asmFixSign(exp.initProduct, 
                         exp.signA, 
                         exp.signB);
+                GET_REG(sp, sp2Ptr); // get SP value before the call
 
                 testAsmFixSign(testCase,
                         "DEBUG",
@@ -470,6 +497,8 @@ int main ( void )
                         exp.signB,
                         r0_finalProduct, // outputs
                         exp.finalProduct, // expected values
+                        sp1,
+                        sp2,
                         &passCount,
                         &failCount,
                         onlyPrintFails,
@@ -535,7 +564,10 @@ int main ( void )
                 // !!!! THIS IS WHERE YOUR ASSEMBLY LANGUAGE PROGRAM GETS CALLED!!!!
                 // Call our assembly function defined in file asmMult.s
                 
+                GET_REG(sp, sp1Ptr); // get SP value before the call
                 int32_t r0_mainFinalProd = asmMain(packedValue);
+                GET_REG(sp, sp2Ptr); // get SP value before the call
+
                 testAsmMain(testCase,
                         "",
                         exp.packedVal, // inputs
@@ -546,6 +578,8 @@ int main ( void )
                         init_Product,
                         final_Product,
                         &exp, // expected values
+                        sp1,
+                        sp2,
                         &passCount,
                         &failCount,
                         onlyPrintFails,
@@ -593,7 +627,8 @@ int main ( void )
         bool firstTime = true;
         // Total points should be 50 to match the lab question
         uint32_t numPtsPerFunc = 10; 
-        uint32_t unpackPts, absPts, multPts, fsPts, mainPts,totalPts;
+        uint32_t unpackPts, absPts, multPts, fsPts, mainPts, totalPts;
+        uint32_t totalPtsPossible = 5 * 10;
         unpackPts = numPtsPerFunc*unpackTotalPassCount/unpackTotalTests;
         absPts = numPtsPerFunc*absTotalPassCount/absTotalTests;
         multPts = numPtsPerFunc*multTotalPassCount/multTotalTests;
@@ -619,7 +654,7 @@ int main ( void )
                     "Summary of tests: asmMult:    %ld of %ld tests passed; %ld pts\r\n"
                     "Summary of tests: asmFixSign: %ld of %ld tests passed; %ld pts\r\n"
                     "Summary of tests: asmMain:    %ld of %ld tests passed; %ld pts\r\n"
-                    " Total point score: %ld\r\n"
+                    "%s: Final score, all tests: %ld/%ld\r\n"
                     "FINI!!!!!\r\n"
                     "\r\n",
                     (char *) nameStrPtr, idleCount, 
@@ -628,7 +663,7 @@ int main ( void )
                     multTotalPassCount, multTotalTests, multPts,
                     fsTotalPassCount, fsTotalTests, fsPts,
                     mainTotalPassCount, mainTotalTests, mainPts,
-                    totalPts
+                    (char *) nameStrPtr, totalPts, totalPtsPossible
                     ); 
             }
             else

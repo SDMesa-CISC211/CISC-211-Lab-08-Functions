@@ -229,6 +229,8 @@ void testAsmUnpack(
         int32_t * unpackedB,
         int32_t inputA,    // expected values
         int32_t inputB,
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -239,9 +241,11 @@ void testAsmUnpack(
     *passCount = 0;
     char *aCheck = oops;
     char *bCheck = oops;
+    char *spCheck = oops;  // check that the SP was correct after the return
     
     check(inputA, *unpackedA, passCount, failCount, &aCheck);
     check(inputB, *unpackedB, passCount, failCount, &bCheck);
+    check(sp_before, sp_after, passCount, failCount, &spCheck);
 
     if( onlyPrintFails == false || ((onlyPrintFails == true) && (*failCount != 0)))
     {
@@ -253,8 +257,11 @@ void testAsmUnpack(
             "expected A (multiplicand) value: %11ld; 0x%08lx\r\n"
             "unpacked B (multiplier) value:   %11ld; 0x%08lx\r\n"
             "expected B (multiplier) value:   %11ld; 0x%08lx\r\n"
+            "SP value after return from call: 0x%08lx\r\n"
+            "Expected Stack Ptr Value:        0x%08lx\r\n"
             "unpacked A pass/fail:            %s\r\n"
             "unpacked B pass/fail:            %s\r\n"
+            "Stack Ptr Check pass/fail:       %s\r\n"
             "========= END -- testAsmUnpack() debug output\r\n"
             "\r\n",
             desc,
@@ -264,7 +271,9 @@ void testAsmUnpack(
             inputA,inputA,
             *unpackedB,*unpackedB,
             inputB,inputB,
-            aCheck,bCheck
+            sp_before,
+            sp_after,
+            aCheck,bCheck,spCheck
             ); 
 
     printAndWait((char *)txBuffer, txComplete);
@@ -281,6 +290,8 @@ void testAsmAbs(
         int32_t r0_absVal,   // outputs
         int32_t expAbs,  // expected values
         int32_t expSignBit,  // expected values
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -292,6 +303,7 @@ void testAsmAbs(
     char *absMemCheck = oops;
     char *sbMemCheck = oops;
     char *r0Check = oops;
+    char *spCheck = oops;
     
     check(expAbs, *absVal, passCount, failCount, &absMemCheck);
     check(expAbs, r0_absVal, passCount, failCount, &r0Check);
@@ -308,6 +320,7 @@ void testAsmAbs(
             "sign bit stored in mem:   %11ld; 0x%08lx; %s\r\n"
             "expected abs value:   %11ld; 0x%08lx\r\n"
             "expected sign bit:    %11ld\r\n"
+            "Expected and Actual SP: 0x%08lx; 0x%08lx; %s\r\n"
             "========= END -- testAsmAbs() debug output\r\n"
             "\r\n",
             desc,
@@ -317,7 +330,8 @@ void testAsmAbs(
             r0_absVal,r0_absVal,r0Check,
             *signBit,*signBit,sbMemCheck,
             expAbs,expAbs,
-            expSignBit
+            expSignBit,
+            sp_before, sp_after, spCheck
             ); 
 
     printAndWait((char *)txBuffer, txComplete);
@@ -333,6 +347,8 @@ void testAsmMult(
         int32_t absB,
         int32_t r0_initProd, // outputs
         int32_t expectedInitProduct, // expected values
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -342,8 +358,10 @@ void testAsmMult(
     *failCount = 0;
     *passCount = 0;
     char *prodCheck = oops;
+    char *spCheck = oops;
     
     check(expectedInitProduct, r0_initProd, passCount, failCount, &prodCheck);
+    check(sp_before, sp_after, passCount, failCount, &spCheck);
 
     if( onlyPrintFails == false || ((onlyPrintFails == true) && (*failCount != 0)))
     {
@@ -356,6 +374,7 @@ void testAsmMult(
             "Output:\r\n"
             "product abs(A) * abs(B): %11ld; 0x%08lx; %s\r\n"
             "Expected product:        %11ld; 0x%08lx\r\n"
+            "Expected and Actual SP: 0x%08lx; 0x%08lx; %s\r\n"
             "========= END -- testAsmMult() debug output\r\n"
             "\r\n",
             desc,
@@ -363,7 +382,8 @@ void testAsmMult(
             absA,absA,
             absB,absB,
             r0_initProd,r0_initProd,prodCheck,
-            expectedInitProduct,expectedInitProduct
+            expectedInitProduct,expectedInitProduct,
+            sp_before, sp_after, spCheck
             ); 
 
     printAndWait((char *)txBuffer, txComplete);
@@ -379,6 +399,8 @@ void testAsmFixSign(
         int32_t signB,
         int32_t r0_finalProduct, // outputs
         int32_t expectedFinalProduct, // expected values
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -388,8 +410,10 @@ void testAsmFixSign(
     *failCount = 0;
     *passCount = 0;
     char *prodCheck = oops;
+    char *spCheck = oops;
     
     check(expectedFinalProduct, r0_finalProduct, passCount, failCount, &prodCheck);
+    check(sp_before, sp_after, passCount, failCount, &spCheck);
 
     if( onlyPrintFails == false || ((onlyPrintFails == true) && (*failCount != 0)))
     {
@@ -403,6 +427,7 @@ void testAsmFixSign(
             "Output:\r\n"
             "Final (signed) product:     %11ld; 0x%08lx; %s\r\n"
             "Expected product:           %11ld; 0x%08lx\r\n"
+            "Expected and Actual SP: 0x%08lx; 0x%08lx; %s\r\n"
             "========= END -- testAsmFixSign() debug output\r\n"
             "\r\n",
             desc,
@@ -411,7 +436,8 @@ void testAsmFixSign(
             signA,
             signB,
             r0_finalProduct,r0_finalProduct,prodCheck,
-            expectedFinalProduct,expectedFinalProduct
+            expectedFinalProduct,expectedFinalProduct,
+            sp_before, sp_after, spCheck
             ); 
 
     printAndWait((char *)txBuffer, txComplete);
@@ -435,6 +461,8 @@ void testAsmMain(
         int32_t initProduct,
         int32_t finalProduct,
         expectedValues * exp, // expected values
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -452,6 +480,7 @@ void testAsmMain(
     char *initProdCheck = oops;
     char *finalProdCheck = oops;
     char *r0Check = oops;
+    char *spCheck = oops;
 
     check(exp->inputA, a, passCount, failCount, &aCheck);
     check(exp->inputB, b, passCount, failCount, &bCheck);
@@ -462,6 +491,7 @@ void testAsmMain(
     check(exp->initProduct, initProduct, passCount, failCount, &initProdCheck);
     check(exp->finalProduct, finalProduct, passCount, failCount, &finalProdCheck);
     check(exp->finalProduct, r0_mainFinalProd, passCount, failCount, &r0Check);
+    check(sp_before, sp_after, passCount, failCount, &spCheck);
  
     if( onlyPrintFails == false || ((onlyPrintFails == true) && (*failCount != 0)))
     {
@@ -488,7 +518,8 @@ void testAsmMain(
             "b_Abs:...........%11ld   %11ld\r\n"
             "init_Product:....%11ld   %11ld\r\n"
             "final_Product:...%11ld   %11ld\r\n"
-            "returned value:..%11ld   %11ld\r\n",
+            "returned value:..%11ld   %11ld\r\n"
+            "Expected and Actual SP: 0x%08lx; 0x%08lx; %s\r\n",
             desc,
             testNum,
             exp->packedVal,
@@ -511,7 +542,8 @@ void testAsmMain(
             exp->absB, bAbs,
             exp->initProduct, initProduct,
             exp->finalProduct, finalProduct,
-            exp->finalProduct, r0_mainFinalProd
+            exp->finalProduct, r0_mainFinalProd,
+            sp_before, sp_after, spCheck
             );
     
     printAndWait((char *)txBuffer, txComplete);

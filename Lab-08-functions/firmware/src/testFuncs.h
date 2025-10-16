@@ -183,6 +183,8 @@ void testAsmUnpack(
         int32_t * unpackedB,
         int32_t inputA,    // expected values
         int32_t inputB,
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -198,6 +200,8 @@ void testAsmAbs(
         int32_t r0_absVal,   // outputs
         int32_t expAbs,  // expected values
         int32_t expSignBit,  // expected values
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -212,6 +216,8 @@ void testAsmMult(
         int32_t absB,
         int32_t r0_initProd, // outputs
         int32_t expectedInitProduct, // expected values
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -227,6 +233,8 @@ void testAsmFixSign(
         int32_t signB,
         int32_t r0_finalProduct, // outputs
         int32_t expectedFinalProduct, // expected values
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
@@ -249,6 +257,8 @@ void testAsmMain(
         int32_t init_Product,
         int32_t final_Product,
         expectedValues * exp, // expected values
+        uint32_t sp_before,
+        uint32_t sp_after,
         int32_t * passCount,
         int32_t * failCount,
         bool onlyPrintFails,
